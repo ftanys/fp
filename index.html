@@ -139,18 +139,18 @@
             margin: 20px 0;
         }
 
+        /* 修改2：保证图片完整显示 */
         .meme-img {
             width: 100%;
             max-width: 300px;
-            height: 200px;
+            height: auto;
+            max-height: 200px;
             border-radius: 12px;
             margin: 20px auto;
             box-shadow: 0 8px 25px rgba(0,0,0,0.2);
-            object-fit: cover;
+            object-fit: contain;
             object-position: center;
             display: block;
-            /* 确保图片完整显示的关键设置 */
-            min-height: 200px;
             background-color: #f0f0f0;
             background-image: url('data:image/svg+xml,<svg xmlns="http://www.w3.org/2000/svg" width="100" height="100" viewBox="0 0 100 100"><rect width="100" height="100" fill="%23f0f0f0"/><text x="50" y="50" text-anchor="middle" dy=".3em" font-size="12" fill="%23999">Loading...</text></svg>');
             background-repeat: no-repeat;
@@ -203,7 +203,7 @@
 
         <!-- 第二阶段：警告 -->
         <div class="warning-phase">
-            <div class="warning-text" id="warning-text">扫什么码都只会害了你</div>
+            <div class="warning-text" id="warning-text">什么码都扫只会害了你</div>
         </div>
 
         <!-- 第三阶段：最终提示 -->
@@ -214,19 +214,15 @@
     </div>
 
     <script>
-        // 检测用户语言
         const userLang = navigator.language || navigator.userLanguage;
         const isZh = userLang.startsWith('zh');
-        const isEn = userLang.startsWith('en');
-        
-        // 多语言文本
         const translations = {
             en: {
                 successTitle: "Payment Successful",
                 merchantLabel: "Merchant:",
                 methodLabel: "Payment Method:",
                 transactionLabel: "Transaction ID:",
-                warningText: "Scanning any QR code will only harm you",
+                warningText: "Scanning every QR code will only harm you",
                 finalText: "This time it's a joke, but next time who knows 😏"
             },
             zh: {
@@ -234,7 +230,7 @@
                 merchantLabel: "商家:",
                 methodLabel: "支付方式:",
                 transactionLabel: "交易ID:",
-                warningText: "扫什么码都只会害了你",
+                warningText: "什么码都扫只会害了你",
                 finalText: "这次是玩笑，下次可就不知道是什么咯 😏"
             },
             ja: {
@@ -242,7 +238,7 @@
                 merchantLabel: "加盟店:",
                 methodLabel: "支払い方法:",
                 transactionLabel: "取引ID:",
-                warningText: "どんなQRコードをスキャンしても害にしかならない",
+                warningText: "どのQRコードでもスキャンすれば害になるだけ",
                 finalText: "今回は冗談だが、次は何かわからない 😏"
             },
             ko: {
@@ -250,7 +246,7 @@
                 merchantLabel: "가맹점:",
                 methodLabel: "결제 수단:",
                 transactionLabel: "거래 ID:",
-                warningText: "어떤 QR코드를 스캔해도 해만 될 뿐",
+                warningText: "모든 QR코드를 스캔하면 해가 될 뿐",
                 finalText: "이번엔 농담이지만, 다음엔 뭘지 모르겠네 😏"
             },
             es: {
@@ -258,7 +254,7 @@
                 merchantLabel: "Comerciante:",
                 methodLabel: "Método de Pago:",
                 transactionLabel: "ID de Transacción:",
-                warningText: "Escanear cualquier código QR solo te hará daño",
+                warningText: "Escanear todos los códigos QR solo te hará daño",
                 finalText: "Esta vez es broma, pero la próxima quién sabe 😏"
             },
             fr: {
@@ -266,12 +262,11 @@
                 merchantLabel: "Marchand:",
                 methodLabel: "Méthode de Paiement:",
                 transactionLabel: "ID de Transaction:",
-                warningText: "Scanner n'importe quel QR code ne fera que vous nuire",
+                warningText: "Scanner tous les QR codes ne fera que vous nuire",
                 finalText: "Cette fois c'est une blague, mais la prochaine qui sait 😏"
             }
         };
 
-        // 选择语言
         let lang = 'en';
         if (isZh) lang = 'zh';
         else if (userLang.startsWith('ja')) lang = 'ja';
@@ -281,240 +276,62 @@
 
         const t = translations[lang];
 
-        // 预加载的猫图URL
         let preloadedCatImage = null;
         let isPreloadComplete = false;
 
-        // 预加载猫图
         function preloadCatImage() {
-            console.log('Preloading cat image...');
-            
-            // 使用最快最可靠的PlaceKitten API
             const randomId = Math.floor(Math.random() * 1000) + Date.now();
             const catUrl = `https://placekitten.com/300/200?id=${randomId}`;
-            
-            // 创建预加载图片对象
             const preloadImg = new Image();
             preloadImg.crossOrigin = "anonymous";
-            
             preloadImg.onload = function() {
                 preloadedCatImage = catUrl;
                 isPreloadComplete = true;
-                console.log('Cat image preloaded successfully:', catUrl);
             };
-            
             preloadImg.onerror = function() {
-                console.log('PlaceKitten failed, trying Cataas...');
-                // 备用：尝试Cataas
                 const cataasUrl = `https://cataas.com/cat?width=300&height=200&${Date.now()}`;
                 const backupImg = new Image();
-                
                 backupImg.onload = function() {
                     preloadedCatImage = cataasUrl;
                     isPreloadComplete = true;
-                    console.log('Backup cat image preloaded:', cataasUrl);
                 };
-                
-                backupImg.onerror = function() {
-                    console.log('All cat APIs failed, will use emoji fallback');
-                    isPreloadComplete = true;
-                    preloadedCatImage = null;
-                };
-                
                 backupImg.src = cataasUrl;
             };
-            
             preloadImg.src = catUrl;
         }
 
-        // 使用预加载的猫图
         function createRandomMemeImage() {
             const imgElement = document.getElementById('meme-img');
-            
-            // 重置样式并确保容器设置正确
-            imgElement.style.background = '';
-            imgElement.style.color = '';
-            imgElement.style.textShadow = '';
-            imgElement.innerHTML = '';
             imgElement.style.display = 'block';
-            
-            // 确保图片容器大小正确
             imgElement.style.width = '100%';
             imgElement.style.maxWidth = '300px';
-            imgElement.style.height = '200px';
-            imgElement.style.objectFit = 'cover';
+            imgElement.style.objectFit = 'contain';
             imgElement.style.objectPosition = 'center';
-            
-            console.log('Creating meme image. Preload complete:', isPreloadComplete, 'Preloaded URL:', preloadedCatImage);
-            
             if (isPreloadComplete && preloadedCatImage) {
-                // 使用预加载的图片
-                console.log('Using preloaded cat image');
                 imgElement.src = preloadedCatImage;
-                imgElement.alt = "Random Cat";
-                
-                // 确保图片加载完成后清除loading背景
                 imgElement.onload = function() {
-                    console.log('Cat image loaded successfully');
                     imgElement.style.backgroundImage = 'none';
                     imgElement.style.backgroundColor = 'transparent';
-                };
-                
-                imgElement.onerror = function() {
-                    console.log('Preloaded image failed on display, using fallback');
-                    showCatEmojiFallback(imgElement);
-                };
-                
-            } else if (isPreloadComplete && !preloadedCatImage) {
-                // 预加载完成但失败了，使用表情符号
-                console.log('Preload failed, using emoji fallback');
-                showCatEmojiFallback(imgElement);
-                
-            } else {
-                // 预加载还没完成，尝试直接加载一张图片
-                console.log('Preload not complete, loading image directly');
-                const directUrl = `https://placekitten.com/300/200?direct=${Date.now()}`;
-                imgElement.src = directUrl;
-                imgElement.alt = "Random Cat";
-                
-                imgElement.onload = function() {
-                    console.log('Direct loaded cat image success');
-                    imgElement.style.backgroundImage = 'none';
-                    imgElement.style.backgroundColor = 'transparent';
-                };
-                
-                imgElement.onerror = function() {
-                    console.log('Direct load failed, using emoji fallback');
-                    showCatEmojiFallback(imgElement);
-                };
-            }
-        }
-
-        // 显示猫咪表情符号备用方案
-        function showCatEmojiFallback(imgElement) {
-            // 隐藏img元素
-            imgElement.style.display = 'none';
-            
-            const fallbackDiv = document.createElement('div');
-            fallbackDiv.className = 'cat-fallback';
-            fallbackDiv.style.cssText = `
-                width: 100%;
-                max-width: 300px;
-                height: 200px;
-                background: linear-gradient(45deg, #FF6B6B, #4ECDC4);
-                border-radius: 12px;
-                display: flex;
-                align-items: center;
-                justify-content: center;
-                flex-direction: column;
-                color: white;
-                font-weight: bold;
-                text-shadow: 2px 2px 4px rgba(0,0,0,0.5);
-                margin: 20px auto;
-                box-shadow: 0 8px 25px rgba(0,0,0,0.2);
-                box-sizing: border-box;
-            `;
-            
-            const catEmojis = ['🐱', '😸', '😹', '😻', '🙀', '😿', '😾'];
-            const randomCat = catEmojis[Math.floor(Math.random() * catEmojis.length)];
-            
-            fallbackDiv.innerHTML = `
-                <div style="font-size: 60px; margin-bottom: 10px; line-height: 1;">${randomCat}</div>
-                <div style="font-size: 18px; text-align: center; line-height: 1.2;">MEOW! GOT YOU!</div>
-            `;
-            
-            imgElement.parentNode.insertBefore(fallbackDiv, imgElement);
-        }
-
-        // 播放支付成功提示音 - 模拟支付宝/微信支付的声音
-        async function playNotificationSound() {
-            try {
-                const audioContext = new (window.AudioContext || window.webkitAudioContext)();
-                
-                // 创建支付宝风格的"叮"声 - 双音调
-                const createTone = (freq, startTime, duration) => {
-                    const oscillator = audioContext.createOscillator();
-                    const gainNode = audioContext.createGain();
-                    
-                    oscillator.connect(gainNode);
-                    gainNode.connect(audioContext.destination);
-                    
-                    oscillator.frequency.setValueAtTime(freq, startTime);
-                    gainNode.gain.setValueAtTime(0.3, startTime);
-                    gainNode.gain.exponentialRampToValueAtTime(0.01, startTime + duration);
-                    
-                    oscillator.start(startTime);
-                    oscillator.stop(startTime + duration);
-                };
-                
-                // 支付宝风格：先高音后低音的"叮咚"
-                const now = audioContext.currentTime;
-                createTone(800, now, 0.15);      // 第一个音：高音"叮"
-                createTone(600, now + 0.1, 0.2); // 第二个音：低音"咚"
-                
-            } catch (e) {
-                console.log('Audio Context failed:', e);
-                
-                // 备用方案：使用HTML5 Audio播放预设音频
-                try {
-                    // 这是一个简短的WAV音频数据，模拟"叮"声
-                    const audioData = "data:audio/wav;base64,UklGRjIAAABXQVZFZm10IBAAAAABAAEAgD4AAIA+AAABAAgAZGF0YQ4AAAC4uLi4uLi4uLi4uLi4";
-                    const audio = new Audio();
-                    audio.volume = 0.7;
-                    
-                    // 创建多个音调来模拟支付音效
-                    const playSequence = async () => {
-                        // 播放高音
-                        audio.src = audioData;
-                        await audio.play().catch(() => {});
-                        
-                        // 短暂延迟后播放低音
-                        setTimeout(() => {
-                            audio.src = audioData;
-                            audio.playbackRate = 0.8; // 降低音调
-                            audio.play().catch(() => {});
-                        }, 100);
-                    };
-                    
-                    playSequence();
-                    
-                } catch (e2) {
-                    // 最终备用：在控制台模拟声音反馈
-                    console.log('🔊 Payment Success Sound: DING! 💰');
-                    
-                    // 视觉反馈：让成功图标闪烁
-                    const successIcon = document.querySelector('.success-icon');
-                    if (successIcon) {
-                        successIcon.style.animation = 'pulse 0.5s ease-in-out 3';
+                    const ratio = imgElement.naturalWidth / imgElement.naturalHeight;
+                    if (ratio > 1.5) {
+                        imgElement.style.width = '100%';
+                        imgElement.style.height = 'auto';
+                    } else {
+                        imgElement.style.height = '200px';
+                        imgElement.style.width = 'auto';
                     }
-                }
+                };
             }
         }
 
-        // 初始化页面
         function initPage() {
-            // 设置文本
             document.getElementById('success-title').textContent = t.successTitle;
             document.getElementById('merchant-label').textContent = t.merchantLabel;
             document.getElementById('method-label').textContent = t.methodLabel;
             document.getElementById('transaction-label').textContent = t.transactionLabel;
-            
-            // 设置时间戳
-            const now = new Date();
-            const timestamp = now.toLocaleString(userLang);
-            document.getElementById('timestamp').textContent = timestamp;
-
-            // 立即尝试播放声音
-            setTimeout(() => {
-                playNotificationSound();
-            }, 100);
-            
-            // 用户交互时也播放声音（以防自动播放被阻止）
-            document.addEventListener('click', playNotificationSound, { once: true });
-            document.addEventListener('touchstart', playNotificationSound, { once: true });
+            document.getElementById('timestamp').textContent = new Date().toLocaleString(userLang);
         }
 
-        // 阶段切换
         function showWarningPhase() {
             document.querySelector('.success-phase').classList.add('hidden');
             document.querySelector('.warning-phase').style.display = 'block';
@@ -525,21 +342,12 @@
             document.querySelector('.warning-phase').classList.add('hidden');
             document.querySelector('.final-phase').style.display = 'block';
             document.getElementById('final-text').textContent = t.finalText;
-            
-            // 创建随机搞笑图片 - 简单可靠的方式
             createRandomMemeImage();
         }
 
-        // 启动序列
         initPage();
-        
-        // 立即开始预加载猫图
         preloadCatImage();
-
-        // 3秒后显示警告
         setTimeout(showWarningPhase, 3000);
-
-        // 6秒后显示最终阶段（猫图应该已经预加载完成）
         setTimeout(showFinalPhase, 6000);
     </script>
 </body>
