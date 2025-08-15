@@ -1,0 +1,471 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Payment Success</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            height: 100vh;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            overflow: hidden;
+        }
+
+        .container {
+            background: white;
+            border-radius: 20px;
+            box-shadow: 0 20px 60px rgba(0,0,0,0.3);
+            width: 90%;
+            max-width: 400px;
+            padding: 40px 30px;
+            text-align: center;
+            position: relative;
+            animation: slideUp 0.8s ease-out;
+        }
+
+        @keyframes slideUp {
+            from {
+                opacity: 0;
+                transform: translateY(50px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        .success-icon {
+            width: 80px;
+            height: 80px;
+            background: #4CAF50;
+            border-radius: 50%;
+            margin: 0 auto 30px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            animation: pulse 2s infinite;
+        }
+
+        @keyframes pulse {
+            0% { transform: scale(1); }
+            50% { transform: scale(1.1); }
+            100% { transform: scale(1); }
+        }
+
+        .checkmark {
+            color: white;
+            font-size: 40px;
+            font-weight: bold;
+        }
+
+        h1 {
+            color: #333;
+            font-size: 28px;
+            margin-bottom: 20px;
+            font-weight: 600;
+        }
+
+        .amount {
+            font-size: 48px;
+            color: #4CAF50;
+            font-weight: bold;
+            margin: 20px 0;
+            text-shadow: 2px 2px 4px rgba(0,0,0,0.1);
+        }
+
+        .details {
+            background: #f8f9fa;
+            border-radius: 12px;
+            padding: 20px;
+            margin: 25px 0;
+            border-left: 4px solid #4CAF50;
+        }
+
+        .detail-row {
+            display: flex;
+            justify-content: space-between;
+            margin: 10px 0;
+            font-size: 16px;
+        }
+
+        .detail-label {
+            color: #666;
+            font-weight: 500;
+        }
+
+        .detail-value {
+            color: #333;
+            font-weight: 600;
+        }
+
+        .timestamp {
+            color: #888;
+            font-size: 14px;
+            margin-top: 20px;
+        }
+
+        .warning-phase, .final-phase {
+            display: none;
+        }
+
+        .warning-text {
+            font-size: 24px;
+            color: #ff4757;
+            font-weight: bold;
+            margin: 30px 0;
+            animation: shake 0.5s ease-in-out;
+        }
+
+        @keyframes shake {
+            0%, 100% { transform: translateX(0); }
+            25% { transform: translateX(-10px); }
+            75% { transform: translateX(10px); }
+        }
+
+        .final-text {
+            font-size: 20px;
+            color: #2f3542;
+            font-weight: 600;
+            margin: 20px 0;
+        }
+
+        .meme-img {
+            width: 100%;
+            height: 200px;
+            border-radius: 12px;
+            margin: 20px 0;
+            box-shadow: 0 8px 25px rgba(0,0,0,0.2);
+            /* 确保作为容器显示 */
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            flex-direction: column;
+        }
+
+        .hidden {
+            display: none !important;
+        }
+
+        @media (max-width: 480px) {
+            .container {
+                padding: 30px 20px;
+            }
+            .amount {
+                font-size: 36px;
+            }
+            h1 {
+                font-size: 24px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <!-- 第一阶段：支付成功 -->
+        <div class="success-phase">
+            <div class="success-icon">
+                <div class="checkmark">✓</div>
+            </div>
+            <h1 id="success-title">Payment Successful</h1>
+            <div class="amount">$250.00</div>
+            <div class="details">
+                <div class="detail-row">
+                    <span class="detail-label" id="merchant-label">Merchant:</span>
+                    <span class="detail-value">Apple Store</span>
+                </div>
+                <div class="detail-row">
+                    <span class="detail-label" id="method-label">Payment Method:</span>
+                    <span class="detail-value">•••• 4567</span>
+                </div>
+                <div class="detail-row">
+                    <span class="detail-label" id="transaction-label">Transaction ID:</span>
+                    <span class="detail-value">#TXN789456123</span>
+                </div>
+            </div>
+            <div class="timestamp" id="timestamp"></div>
+        </div>
+
+        <!-- 第二阶段：警告 -->
+        <div class="warning-phase">
+            <div class="warning-text" id="warning-text">扫什么码都只会害了你</div>
+        </div>
+
+        <!-- 第三阶段：最终提示 -->
+        <div class="final-phase">
+            <div class="final-text" id="final-text">这次是玩笑，下次可就不知道是什么咯 😏</div>
+            <img class="meme-img" id="meme-img" alt="Meme">
+        </div>
+    </div>
+
+    <script>
+        // 检测用户语言
+        const userLang = navigator.language || navigator.userLanguage;
+        const isZh = userLang.startsWith('zh');
+        const isEn = userLang.startsWith('en');
+        
+        // 多语言文本
+        const translations = {
+            en: {
+                successTitle: "Payment Successful",
+                merchantLabel: "Merchant:",
+                methodLabel: "Payment Method:",
+                transactionLabel: "Transaction ID:",
+                warningText: "Scanning any QR code will only harm you",
+                finalText: "This time it's a joke, but next time who knows 😏"
+            },
+            zh: {
+                successTitle: "支付成功",
+                merchantLabel: "商家:",
+                methodLabel: "支付方式:",
+                transactionLabel: "交易ID:",
+                warningText: "扫什么码都只会害了你",
+                finalText: "这次是玩笑，下次可就不知道是什么咯 😏"
+            },
+            ja: {
+                successTitle: "支払い成功",
+                merchantLabel: "加盟店:",
+                methodLabel: "支払い方法:",
+                transactionLabel: "取引ID:",
+                warningText: "どんなQRコードをスキャンしても害にしかならない",
+                finalText: "今回は冗談だが、次は何かわからない 😏"
+            },
+            ko: {
+                successTitle: "결제 성공",
+                merchantLabel: "가맹점:",
+                methodLabel: "결제 수단:",
+                transactionLabel: "거래 ID:",
+                warningText: "어떤 QR코드를 스캔해도 해만 될 뿐",
+                finalText: "이번엔 농담이지만, 다음엔 뭘지 모르겠네 😏"
+            },
+            es: {
+                successTitle: "Pago Exitoso",
+                merchantLabel: "Comerciante:",
+                methodLabel: "Método de Pago:",
+                transactionLabel: "ID de Transacción:",
+                warningText: "Escanear cualquier código QR solo te hará daño",
+                finalText: "Esta vez es broma, pero la próxima quién sabe 😏"
+            },
+            fr: {
+                successTitle: "Paiement Réussi",
+                merchantLabel: "Marchand:",
+                methodLabel: "Méthode de Paiement:",
+                transactionLabel: "ID de Transaction:",
+                warningText: "Scanner n'importe quel QR code ne fera que vous nuire",
+                finalText: "Cette fois c'est une blague, mais la prochaine qui sait 😏"
+            }
+        };
+
+        // 选择语言
+        let lang = 'en';
+        if (isZh) lang = 'zh';
+        else if (userLang.startsWith('ja')) lang = 'ja';
+        else if (userLang.startsWith('ko')) lang = 'ko';
+        else if (userLang.startsWith('es')) lang = 'es';
+        else if (userLang.startsWith('fr')) lang = 'fr';
+
+        const t = translations[lang];
+
+        // 使用可靠的猫图API
+        function createRandomMemeImage() {
+            const imgElement = document.getElementById('meme-img');
+            
+            // 重置为img元素
+            imgElement.style.background = '';
+            imgElement.style.color = '';
+            imgElement.style.textShadow = '';
+            imgElement.innerHTML = '';
+            
+            // 使用多个猫图API确保可用性
+            const catAPIs = [
+                'https://api.thecatapi.com/v1/images/search?size=med',
+                'https://cataas.com/cat?width=300&height=200',
+                'https://placekitten.com/300/200'
+            ];
+            
+            // 随机选择一个API
+            const randomAPI = catAPIs[Math.floor(Math.random() * catAPIs.length)];
+            
+            if (randomAPI.includes('thecatapi.com')) {
+                // TheCatAPI需要JSON解析
+                fetch(randomAPI)
+                    .then(response => response.json())
+                    .then(data => {
+                        imgElement.src = data[0].url;
+                        imgElement.alt = "Random Cat";
+                        imgElement.style.objectFit = 'cover';
+                    })
+                    .catch(() => {
+                        // 如果失败，使用placekitten
+                        imgElement.src = 'https://placekitten.com/300/200?random=' + Math.floor(Math.random() * 1000);
+                        imgElement.alt = "Random Kitten";
+                    });
+            } else {
+                // 直接设置图片URL
+                if (randomAPI.includes('placekitten')) {
+                    imgElement.src = randomAPI + '?random=' + Math.floor(Math.random() * 1000);
+                } else {
+                    imgElement.src = randomAPI + '&' + Date.now(); // 添加时间戳避免缓存
+                }
+                imgElement.alt = "Random Cat";
+                imgElement.style.objectFit = 'cover';
+            }
+            
+            // 错误处理 - 如果猫图也失败了，显示表情符号
+            imgElement.onerror = function() {
+                console.log('Cat image failed, using emoji fallback');
+                imgElement.style.display = 'none';
+                
+                const fallbackDiv = document.createElement('div');
+                fallbackDiv.style.cssText = `
+                    width: 300px;
+                    height: 200px;
+                    background: linear-gradient(45deg, #FF6B6B, #4ECDC4);
+                    border-radius: 12px;
+                    display: flex;
+                    align-items: center;
+                    justify-content: center;
+                    flex-direction: column;
+                    color: white;
+                    font-weight: bold;
+                    text-shadow: 2px 2px 4px rgba(0,0,0,0.5);
+                `;
+                
+                const catEmojis = ['🐱', '😸', '😹', '😻', '🙀', '😿', '😾'];
+                const randomCat = catEmojis[Math.floor(Math.random() * catEmojis.length)];
+                
+                fallbackDiv.innerHTML = `
+                    <div style="font-size: 60px; margin-bottom: 10px;">${randomCat}</div>
+                    <div style="font-size: 18px;">MEOW! GOT YOU!</div>
+                `;
+                
+                imgElement.parentNode.insertBefore(fallbackDiv, imgElement);
+            };
+            
+            console.log('Loading cat image from:', randomAPI);
+        }
+
+        // 播放支付成功提示音 - 模拟支付宝/微信支付的声音
+        async function playNotificationSound() {
+            try {
+                const audioContext = new (window.AudioContext || window.webkitAudioContext)();
+                
+                // 创建支付宝风格的"叮"声 - 双音调
+                const createTone = (freq, startTime, duration) => {
+                    const oscillator = audioContext.createOscillator();
+                    const gainNode = audioContext.createGain();
+                    
+                    oscillator.connect(gainNode);
+                    gainNode.connect(audioContext.destination);
+                    
+                    oscillator.frequency.setValueAtTime(freq, startTime);
+                    gainNode.gain.setValueAtTime(0.3, startTime);
+                    gainNode.gain.exponentialRampToValueAtTime(0.01, startTime + duration);
+                    
+                    oscillator.start(startTime);
+                    oscillator.stop(startTime + duration);
+                };
+                
+                // 支付宝风格：先高音后低音的"叮咚"
+                const now = audioContext.currentTime;
+                createTone(800, now, 0.15);      // 第一个音：高音"叮"
+                createTone(600, now + 0.1, 0.2); // 第二个音：低音"咚"
+                
+            } catch (e) {
+                console.log('Audio Context failed:', e);
+                
+                // 备用方案：使用HTML5 Audio播放预设音频
+                try {
+                    // 这是一个简短的WAV音频数据，模拟"叮"声
+                    const audioData = "data:audio/wav;base64,UklGRjIAAABXQVZFZm10IBAAAAABAAEAgD4AAIA+AAABAAgAZGF0YQ4AAAC4uLi4uLi4uLi4uLi4";
+                    const audio = new Audio();
+                    audio.volume = 0.7;
+                    
+                    // 创建多个音调来模拟支付音效
+                    const playSequence = async () => {
+                        // 播放高音
+                        audio.src = audioData;
+                        await audio.play().catch(() => {});
+                        
+                        // 短暂延迟后播放低音
+                        setTimeout(() => {
+                            audio.src = audioData;
+                            audio.playbackRate = 0.8; // 降低音调
+                            audio.play().catch(() => {});
+                        }, 100);
+                    };
+                    
+                    playSequence();
+                    
+                } catch (e2) {
+                    // 最终备用：在控制台模拟声音反馈
+                    console.log('🔊 Payment Success Sound: DING! 💰');
+                    
+                    // 视觉反馈：让成功图标闪烁
+                    const successIcon = document.querySelector('.success-icon');
+                    if (successIcon) {
+                        successIcon.style.animation = 'pulse 0.5s ease-in-out 3';
+                    }
+                }
+            }
+        }
+
+        // 初始化页面
+        function initPage() {
+            // 设置文本
+            document.getElementById('success-title').textContent = t.successTitle;
+            document.getElementById('merchant-label').textContent = t.merchantLabel;
+            document.getElementById('method-label').textContent = t.methodLabel;
+            document.getElementById('transaction-label').textContent = t.transactionLabel;
+            
+            // 设置时间戳
+            const now = new Date();
+            const timestamp = now.toLocaleString(userLang);
+            document.getElementById('timestamp').textContent = timestamp;
+
+            // 立即尝试播放声音
+            setTimeout(() => {
+                playNotificationSound();
+            }, 100);
+            
+            // 用户交互时也播放声音（以防自动播放被阻止）
+            document.addEventListener('click', playNotificationSound, { once: true });
+            document.addEventListener('touchstart', playNotificationSound, { once: true });
+        }
+
+        // 阶段切换
+        function showWarningPhase() {
+            document.querySelector('.success-phase').classList.add('hidden');
+            document.querySelector('.warning-phase').style.display = 'block';
+            document.getElementById('warning-text').textContent = t.warningText;
+        }
+
+        function showFinalPhase() {
+            document.querySelector('.warning-phase').classList.add('hidden');
+            document.querySelector('.final-phase').style.display = 'block';
+            document.getElementById('final-text').textContent = t.finalText;
+            
+            // 创建随机搞笑图片 - 简单可靠的方式
+            createRandomMemeImage();
+        }
+
+        // 启动序列
+        initPage();
+
+        // 3秒后显示警告
+        setTimeout(showWarningPhase, 3000);
+
+        // 6秒后显示最终阶段
+        setTimeout(showFinalPhase, 6000);
+    </script>
+</body>
+</html>
