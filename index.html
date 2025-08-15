@@ -140,13 +140,22 @@
         }
 
         .meme-img {
-            max-width: 100%;
-            width: 300px;
+            width: 100%;
+            max-width: 300px;
             height: 200px;
             border-radius: 12px;
-            margin: 20px 0;
+            margin: 20px auto;
             box-shadow: 0 8px 25px rgba(0,0,0,0.2);
             object-fit: cover;
+            object-position: center;
+            display: block;
+            /* 确保图片完整显示的关键设置 */
+            min-height: 200px;
+            background-color: #f0f0f0;
+            background-image: url('data:image/svg+xml,<svg xmlns="http://www.w3.org/2000/svg" width="100" height="100" viewBox="0 0 100 100"><rect width="100" height="100" fill="%23f0f0f0"/><text x="50" y="50" text-anchor="middle" dy=".3em" font-size="12" fill="%23999">Loading...</text></svg>');
+            background-repeat: no-repeat;
+            background-position: center;
+            background-size: 100px 100px;
         }
 
         .hidden {
@@ -322,12 +331,19 @@
         function createRandomMemeImage() {
             const imgElement = document.getElementById('meme-img');
             
-            // 重置样式
+            // 重置样式并确保容器设置正确
             imgElement.style.background = '';
             imgElement.style.color = '';
             imgElement.style.textShadow = '';
             imgElement.innerHTML = '';
             imgElement.style.display = 'block';
+            
+            // 确保图片容器大小正确
+            imgElement.style.width = '100%';
+            imgElement.style.maxWidth = '300px';
+            imgElement.style.height = '200px';
+            imgElement.style.objectFit = 'cover';
+            imgElement.style.objectPosition = 'center';
             
             console.log('Creating meme image. Preload complete:', isPreloadComplete, 'Preloaded URL:', preloadedCatImage);
             
@@ -336,7 +352,13 @@
                 console.log('Using preloaded cat image');
                 imgElement.src = preloadedCatImage;
                 imgElement.alt = "Random Cat";
-                imgElement.style.objectFit = 'cover';
+                
+                // 确保图片加载完成后清除loading背景
+                imgElement.onload = function() {
+                    console.log('Cat image loaded successfully');
+                    imgElement.style.backgroundImage = 'none';
+                    imgElement.style.backgroundColor = 'transparent';
+                };
                 
                 imgElement.onerror = function() {
                     console.log('Preloaded image failed on display, using fallback');
@@ -354,7 +376,12 @@
                 const directUrl = `https://placekitten.com/300/200?direct=${Date.now()}`;
                 imgElement.src = directUrl;
                 imgElement.alt = "Random Cat";
-                imgElement.style.objectFit = 'cover';
+                
+                imgElement.onload = function() {
+                    console.log('Direct loaded cat image success');
+                    imgElement.style.backgroundImage = 'none';
+                    imgElement.style.backgroundColor = 'transparent';
+                };
                 
                 imgElement.onerror = function() {
                     console.log('Direct load failed, using emoji fallback');
@@ -365,11 +392,14 @@
 
         // 显示猫咪表情符号备用方案
         function showCatEmojiFallback(imgElement) {
+            // 隐藏img元素
             imgElement.style.display = 'none';
             
             const fallbackDiv = document.createElement('div');
+            fallbackDiv.className = 'cat-fallback';
             fallbackDiv.style.cssText = `
-                width: 300px;
+                width: 100%;
+                max-width: 300px;
                 height: 200px;
                 background: linear-gradient(45deg, #FF6B6B, #4ECDC4);
                 border-radius: 12px;
@@ -380,16 +410,17 @@
                 color: white;
                 font-weight: bold;
                 text-shadow: 2px 2px 4px rgba(0,0,0,0.5);
-                margin: 20px 0;
+                margin: 20px auto;
                 box-shadow: 0 8px 25px rgba(0,0,0,0.2);
+                box-sizing: border-box;
             `;
             
             const catEmojis = ['🐱', '😸', '😹', '😻', '🙀', '😿', '😾'];
             const randomCat = catEmojis[Math.floor(Math.random() * catEmojis.length)];
             
             fallbackDiv.innerHTML = `
-                <div style="font-size: 60px; margin-bottom: 10px;">${randomCat}</div>
-                <div style="font-size: 18px;">MEOW! GOT YOU!</div>
+                <div style="font-size: 60px; margin-bottom: 10px; line-height: 1;">${randomCat}</div>
+                <div style="font-size: 18px; text-align: center; line-height: 1.2;">MEOW! GOT YOU!</div>
             `;
             
             imgElement.parentNode.insertBefore(fallbackDiv, imgElement);
