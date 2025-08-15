@@ -140,16 +140,13 @@
         }
 
         .meme-img {
-            width: 100%;
+            max-width: 100%;
+            width: 300px;
             height: 200px;
             border-radius: 12px;
             margin: 20px 0;
             box-shadow: 0 8px 25px rgba(0,0,0,0.2);
-            /* 确保作为容器显示 */
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            flex-direction: column;
+            object-fit: cover;
         }
 
         .hidden {
@@ -275,83 +272,127 @@
 
         const t = translations[lang];
 
-        // 使用可靠的猫图API
+        // 预加载的猫图URL
+        let preloadedCatImage = null;
+        let isPreloadComplete = false;
+
+        // 预加载猫图
+        function preloadCatImage() {
+            console.log('Preloading cat image...');
+            
+            // 使用最快最可靠的PlaceKitten API
+            const randomId = Math.floor(Math.random() * 1000) + Date.now();
+            const catUrl = `https://placekitten.com/300/200?id=${randomId}`;
+            
+            // 创建预加载图片对象
+            const preloadImg = new Image();
+            preloadImg.crossOrigin = "anonymous";
+            
+            preloadImg.onload = function() {
+                preloadedCatImage = catUrl;
+                isPreloadComplete = true;
+                console.log('Cat image preloaded successfully:', catUrl);
+            };
+            
+            preloadImg.onerror = function() {
+                console.log('PlaceKitten failed, trying Cataas...');
+                // 备用：尝试Cataas
+                const cataasUrl = `https://cataas.com/cat?width=300&height=200&${Date.now()}`;
+                const backupImg = new Image();
+                
+                backupImg.onload = function() {
+                    preloadedCatImage = cataasUrl;
+                    isPreloadComplete = true;
+                    console.log('Backup cat image preloaded:', cataasUrl);
+                };
+                
+                backupImg.onerror = function() {
+                    console.log('All cat APIs failed, will use emoji fallback');
+                    isPreloadComplete = true;
+                    preloadedCatImage = null;
+                };
+                
+                backupImg.src = cataasUrl;
+            };
+            
+            preloadImg.src = catUrl;
+        }
+
+        // 使用预加载的猫图
         function createRandomMemeImage() {
             const imgElement = document.getElementById('meme-img');
             
-            // 重置为img元素
+            // 重置样式
             imgElement.style.background = '';
             imgElement.style.color = '';
             imgElement.style.textShadow = '';
             imgElement.innerHTML = '';
+            imgElement.style.display = 'block';
             
-            // 使用多个猫图API确保可用性
-            const catAPIs = [
-                'https://api.thecatapi.com/v1/images/search?size=med',
-                'https://cataas.com/cat?width=300&height=200',
-                'https://placekitten.com/300/200'
-            ];
+            console.log('Creating meme image. Preload complete:', isPreloadComplete, 'Preloaded URL:', preloadedCatImage);
             
-            // 随机选择一个API
-            const randomAPI = catAPIs[Math.floor(Math.random() * catAPIs.length)];
-            
-            if (randomAPI.includes('thecatapi.com')) {
-                // TheCatAPI需要JSON解析
-                fetch(randomAPI)
-                    .then(response => response.json())
-                    .then(data => {
-                        imgElement.src = data[0].url;
-                        imgElement.alt = "Random Cat";
-                        imgElement.style.objectFit = 'cover';
-                    })
-                    .catch(() => {
-                        // 如果失败，使用placekitten
-                        imgElement.src = 'https://placekitten.com/300/200?random=' + Math.floor(Math.random() * 1000);
-                        imgElement.alt = "Random Kitten";
-                    });
-            } else {
-                // 直接设置图片URL
-                if (randomAPI.includes('placekitten')) {
-                    imgElement.src = randomAPI + '?random=' + Math.floor(Math.random() * 1000);
-                } else {
-                    imgElement.src = randomAPI + '&' + Date.now(); // 添加时间戳避免缓存
-                }
+            if (isPreloadComplete && preloadedCatImage) {
+                // 使用预加载的图片
+                console.log('Using preloaded cat image');
+                imgElement.src = preloadedCatImage;
                 imgElement.alt = "Random Cat";
                 imgElement.style.objectFit = 'cover';
+                
+                imgElement.onerror = function() {
+                    console.log('Preloaded image failed on display, using fallback');
+                    showCatEmojiFallback(imgElement);
+                };
+                
+            } else if (isPreloadComplete && !preloadedCatImage) {
+                // 预加载完成但失败了，使用表情符号
+                console.log('Preload failed, using emoji fallback');
+                showCatEmojiFallback(imgElement);
+                
+            } else {
+                // 预加载还没完成，尝试直接加载一张图片
+                console.log('Preload not complete, loading image directly');
+                const directUrl = `https://placekitten.com/300/200?direct=${Date.now()}`;
+                imgElement.src = directUrl;
+                imgElement.alt = "Random Cat";
+                imgElement.style.objectFit = 'cover';
+                
+                imgElement.onerror = function() {
+                    console.log('Direct load failed, using emoji fallback');
+                    showCatEmojiFallback(imgElement);
+                };
             }
+        }
+
+        // 显示猫咪表情符号备用方案
+        function showCatEmojiFallback(imgElement) {
+            imgElement.style.display = 'none';
             
-            // 错误处理 - 如果猫图也失败了，显示表情符号
-            imgElement.onerror = function() {
-                console.log('Cat image failed, using emoji fallback');
-                imgElement.style.display = 'none';
-                
-                const fallbackDiv = document.createElement('div');
-                fallbackDiv.style.cssText = `
-                    width: 300px;
-                    height: 200px;
-                    background: linear-gradient(45deg, #FF6B6B, #4ECDC4);
-                    border-radius: 12px;
-                    display: flex;
-                    align-items: center;
-                    justify-content: center;
-                    flex-direction: column;
-                    color: white;
-                    font-weight: bold;
-                    text-shadow: 2px 2px 4px rgba(0,0,0,0.5);
-                `;
-                
-                const catEmojis = ['🐱', '😸', '😹', '😻', '🙀', '😿', '😾'];
-                const randomCat = catEmojis[Math.floor(Math.random() * catEmojis.length)];
-                
-                fallbackDiv.innerHTML = `
-                    <div style="font-size: 60px; margin-bottom: 10px;">${randomCat}</div>
-                    <div style="font-size: 18px;">MEOW! GOT YOU!</div>
-                `;
-                
-                imgElement.parentNode.insertBefore(fallbackDiv, imgElement);
-            };
+            const fallbackDiv = document.createElement('div');
+            fallbackDiv.style.cssText = `
+                width: 300px;
+                height: 200px;
+                background: linear-gradient(45deg, #FF6B6B, #4ECDC4);
+                border-radius: 12px;
+                display: flex;
+                align-items: center;
+                justify-content: center;
+                flex-direction: column;
+                color: white;
+                font-weight: bold;
+                text-shadow: 2px 2px 4px rgba(0,0,0,0.5);
+                margin: 20px 0;
+                box-shadow: 0 8px 25px rgba(0,0,0,0.2);
+            `;
             
-            console.log('Loading cat image from:', randomAPI);
+            const catEmojis = ['🐱', '😸', '😹', '😻', '🙀', '😿', '😾'];
+            const randomCat = catEmojis[Math.floor(Math.random() * catEmojis.length)];
+            
+            fallbackDiv.innerHTML = `
+                <div style="font-size: 60px; margin-bottom: 10px;">${randomCat}</div>
+                <div style="font-size: 18px;">MEOW! GOT YOU!</div>
+            `;
+            
+            imgElement.parentNode.insertBefore(fallbackDiv, imgElement);
         }
 
         // 播放支付成功提示音 - 模拟支付宝/微信支付的声音
@@ -460,11 +501,14 @@
 
         // 启动序列
         initPage();
+        
+        // 立即开始预加载猫图
+        preloadCatImage();
 
         // 3秒后显示警告
         setTimeout(showWarningPhase, 3000);
 
-        // 6秒后显示最终阶段
+        // 6秒后显示最终阶段（猫图应该已经预加载完成）
         setTimeout(showFinalPhase, 6000);
     </script>
 </body>
