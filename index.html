@@ -139,18 +139,17 @@
             margin: 20px 0;
         }
 
-        /* 修改2：保证图片完整显示 */
         .meme-img {
             width: 100%;
             max-width: 300px;
             height: auto;
             max-height: 200px;
-            border-radius: 12px;
-            margin: 20px auto;
-            box-shadow: 0 8px 25px rgba(0,0,0,0.2);
             object-fit: contain;
             object-position: center;
             display: block;
+            margin: 20px auto;
+            border-radius: 12px;
+            box-shadow: 0 8px 25px rgba(0,0,0,0.2);
             background-color: #f0f0f0;
             background-image: url('data:image/svg+xml,<svg xmlns="http://www.w3.org/2000/svg" width="100" height="100" viewBox="0 0 100 100"><rect width="100" height="100" fill="%23f0f0f0"/><text x="50" y="50" text-anchor="middle" dy=".3em" font-size="12" fill="%23999">Loading...</text></svg>');
             background-repeat: no-repeat;
@@ -273,55 +272,47 @@
         else if (userLang.startsWith('ko')) lang = 'ko';
         else if (userLang.startsWith('es')) lang = 'es';
         else if (userLang.startsWith('fr')) lang = 'fr';
-
         const t = translations[lang];
 
-        let preloadedCatImage = null;
-        let isPreloadComplete = false;
+        function preloadCatImage(timeout = 4000) {
+            return new Promise((resolve) => {
+                let resolved = false;
+                const randomId = Math.floor(Math.random() * 1000) + Date.now();
+                const mainUrl = `https://placekitten.com/300/200?id=${randomId}`;
+                const backupUrl = `https://cataas.com/cat?width=300&height=200&${Date.now()}`;
 
-        function preloadCatImage() {
-            const randomId = Math.floor(Math.random() * 1000) + Date.now();
-            const catUrl = `https://placekitten.com/300/200?id=${randomId}`;
-            const preloadImg = new Image();
-            preloadImg.crossOrigin = "anonymous";
-            preloadImg.onload = function() {
-                preloadedCatImage = catUrl;
-                isPreloadComplete = true;
-            };
-            preloadImg.onerror = function() {
-                const cataasUrl = `https://cataas.com/cat?width=300&height=200&${Date.now()}`;
+                // 预加载备用图
                 const backupImg = new Image();
-                backupImg.onload = function() {
-                    preloadedCatImage = cataasUrl;
-                    isPreloadComplete = true;
-                };
-                backupImg.src = cataasUrl;
-            };
-            preloadImg.src = catUrl;
-        }
+                backupImg.onload = () => {};
+                backupImg.src = backupUrl;
 
-        function createRandomMemeImage() {
-            const imgElement = document.getElementById('meme-img');
-            imgElement.style.display = 'block';
-            imgElement.style.width = '100%';
-            imgElement.style.maxWidth = '300px';
-            imgElement.style.objectFit = 'contain';
-            imgElement.style.objectPosition = 'center';
-            if (isPreloadComplete && preloadedCatImage) {
-                imgElement.src = preloadedCatImage;
-                imgElement.onload = function() {
-                    imgElement.style.backgroundImage = 'none';
-                    imgElement.style.backgroundColor = 'transparent';
-                    const ratio = imgElement.naturalWidth / imgElement.naturalHeight;
-                    if (ratio > 1.5) {
-                        imgElement.style.width = '100%';
-                        imgElement.style.height = 'auto';
+                // 主图
+                const mainImg = new Image();
+                mainImg.onload = () => {
+                    if (resolved) {
+                        document.getElementById('meme-img').src = mainUrl;
                     } else {
-                        imgElement.style.height = '200px';
-                        imgElement.style.width = 'auto';
+                        resolved = true;
+                        resolve(mainUrl);
                     }
                 };
-            }
+                mainImg.onerror = () => {
+                    if (!resolved) {
+                        resolved = true;
+                        resolve(backupUrl);
+                    }
+                };
+
+                // 超时
+                setTimeout(() => {
+                    if (!resolved) {
+                        resolved = true;
+                        resolve(backupUrl);
+                    }
+                }, timeout);
+
+                mainImg.src = mainUrl;
+            });
         }
 
         function initPage() {
@@ -338,17 +329,27 @@
             document.getElementById('warning-text').textContent = t.warningText;
         }
 
-        function showFinalPhase() {
+        async function showFinalPhase() {
             document.querySelector('.warning-phase').classList.add('hidden');
             document.querySelector('.final-phase').style.display = 'block';
             document.getElementById('final-text').textContent = t.finalText;
-            createRandomMemeImage();
+
+            const imgElement = document.getElementById('meme-img');
+            const firstImage = await preloadCatImage();
+            imgElement.src = firstImage;
+            imgElement.onload = () => {
+                imgElement.style.backgroundImage = 'none';
+                imgElement.style.backgroundColor = 'transparent';
+            };
         }
 
-        initPage();
-        preloadCatImage();
-        setTimeout(showWarningPhase, 3000);
-        setTimeout(showFinalPhase, 6000);
+        function startPhases() {
+            initPage();
+            setTimeout(showWarningPhase, 3000);
+            setTimeout(showFinalPhase, 6000);
+        }
+
+        startPhases();
     </script>
 </body>
 </html>
