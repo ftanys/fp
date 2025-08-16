@@ -1,355 +1,186 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Payment Success</title>
-    <style>
-        * {
-            margin: 0;
-            padding: 0;
-            box-sizing: border-box;
-        }
-
-        body {
-            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
-            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-            height: 100vh;
-            display: flex;
-            justify-content: center;
-            align-items: center;
-            overflow: hidden;
-        }
-
-        .container {
-            background: white;
-            border-radius: 20px;
-            box-shadow: 0 20px 60px rgba(0,0,0,0.3);
-            width: 90%;
-            max-width: 400px;
-            padding: 40px 30px;
-            text-align: center;
-            position: relative;
-            animation: slideUp 0.8s ease-out;
-        }
-
-        @keyframes slideUp {
-            from {
-                opacity: 0;
-                transform: translateY(50px);
-            }
-            to {
-                opacity: 1;
-                transform: translateY(0);
-            }
-        }
-
-        .success-icon {
-            width: 80px;
-            height: 80px;
-            background: #4CAF50;
-            border-radius: 50%;
-            margin: 0 auto 30px;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            animation: pulse 2s infinite;
-        }
-
-        @keyframes pulse {
-            0% { transform: scale(1); }
-            50% { transform: scale(1.1); }
-            100% { transform: scale(1); }
-        }
-
-        .checkmark {
-            color: white;
-            font-size: 40px;
-            font-weight: bold;
-        }
-
-        h1 {
-            color: #333;
-            font-size: 28px;
-            margin-bottom: 20px;
-            font-weight: 600;
-        }
-
-        .amount {
-            font-size: 48px;
-            color: #4CAF50;
-            font-weight: bold;
-            margin: 20px 0;
-            text-shadow: 2px 2px 4px rgba(0,0,0,0.1);
-        }
-
-        .details {
-            background: #f8f9fa;
-            border-radius: 12px;
-            padding: 20px;
-            margin: 25px 0;
-            border-left: 4px solid #4CAF50;
-        }
-
-        .detail-row {
-            display: flex;
-            justify-content: space-between;
-            margin: 10px 0;
-            font-size: 16px;
-        }
-
-        .detail-label {
-            color: #666;
-            font-weight: 500;
-        }
-
-        .detail-value {
-            color: #333;
-            font-weight: 600;
-        }
-
-        .timestamp {
-            color: #888;
-            font-size: 14px;
-            margin-top: 20px;
-        }
-
-        .warning-phase, .final-phase {
-            display: none;
-        }
-
-        .warning-text {
-            font-size: 24px;
-            color: #ff4757;
-            font-weight: bold;
-            margin: 30px 0;
-            animation: shake 0.5s ease-in-out;
-        }
-
-        @keyframes shake {
-            0%, 100% { transform: translateX(0); }
-            25% { transform: translateX(-10px); }
-            75% { transform: translateX(10px); }
-        }
-
-        .final-text {
-            font-size: 20px;
-            color: #2f3542;
-            font-weight: 600;
-            margin: 20px 0;
-        }
-
-        .meme-img {
-            width: 100%;
-            max-width: 300px;
-            height: auto;
-            max-height: 200px;
-            object-fit: contain;
-            object-position: center;
-            display: block;
-            margin: 20px auto;
-            border-radius: 12px;
-            box-shadow: 0 8px 25px rgba(0,0,0,0.2);
-            background-color: #f0f0f0;
-            background-image: url('data:image/svg+xml,<svg xmlns="http://www.w3.org/2000/svg" width="100" height="100" viewBox="0 0 100 100"><rect width="100" height="100" fill="%23f0f0f0"/><text x="50" y="50" text-anchor="middle" dy=".3em" font-size="12" fill="%23999">Loading...</text></svg>');
-            background-repeat: no-repeat;
-            background-position: center;
-            background-size: 100px 100px;
-        }
-
-        .hidden {
-            display: none !important;
-        }
-
-        @media (max-width: 480px) {
-            .container {
-                padding: 30px 20px;
-            }
-            .amount {
-                font-size: 36px;
-            }
-            h1 {
-                font-size: 24px;
-            }
-        }
-    </style>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Payment Success</title>
+<style>
+* { margin:0; padding:0; box-sizing:border-box; }
+body {
+    font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    height: 100vh;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    overflow: hidden;
+}
+.container {
+    background:white;
+    border-radius:20px;
+    box-shadow:0 20px 60px rgba(0,0,0,0.3);
+    width:90%;
+    max-width:400px;
+    padding:40px 30px;
+    text-align:center;
+    position:relative;
+    animation: slideUp 0.8s ease-out;
+}
+@keyframes slideUp {
+    from {opacity:0; transform:translateY(50px);}
+    to {opacity:1; transform:translateY(0);}
+}
+.success-icon {
+    width:80px; height:80px;
+    background:#4CAF50; border-radius:50%;
+    margin:0 auto 30px;
+    display:flex; align-items:center; justify-content:center;
+    animation:pulse 2s infinite;
+}
+@keyframes pulse {0%{transform:scale(1);}50%{transform:scale(1.1);}100%{transform:scale(1);}}
+.checkmark {color:white; font-size:40px; font-weight:bold;}
+h1 {color:#333; font-size:28px; margin-bottom:20px; font-weight:600;}
+.amount {font-size:48px; color:#4CAF50; font-weight:bold; margin:20px 0; text-shadow:2px 2px 4px rgba(0,0,0,0.1);}
+.details {
+    background:#f8f9fa; border-radius:12px; padding:20px; margin:25px 0;
+    border-left:4px solid #4CAF50;
+}
+.detail-row {display:flex; justify-content:space-between; margin:10px 0; font-size:16px;}
+.detail-label {color:#666; font-weight:500;}
+.detail-value {color:#333; font-weight:600;}
+.timestamp {color:#888; font-size:14px; margin-top:20px;}
+.warning-phase, .final-phase {display:none;}
+.warning-text {font-size:24px; color:#ff4757; font-weight:bold; margin:30px 0; animation:shake 0.5s ease-in-out;}
+@keyframes shake {0%,100%{transform:translateX(0);}25%{transform:translateX(-10px);}75%{transform:translateX(10px);}}
+.final-text {font-size:20px; color:#2f3542; font-weight:600; margin:20px 0;}
+.meme-img {
+    width:100%; max-width:300px; height:auto; max-height:200px;
+    object-fit:contain; object-position:center;
+    display:block; margin:20px auto; border-radius:12px;
+    box-shadow:0 8px 25px rgba(0,0,0,0.2);
+    background-color:#f0f0f0;
+    background-image: url('data:image/svg+xml,<svg xmlns="http://www.w3.org/2000/svg" width="100" height="100" viewBox="0 0 100 100"><rect width="100" height="100" fill="%23f0f0f0"/><text x="50" y="50" text-anchor="middle" dy=".3em" font-size="12" fill="%23999">Loading...</text></svg>');
+    background-repeat:no-repeat; background-position:center; background-size:100px 100px;
+    opacity: 0;
+    transition: opacity 0.8s ease-in-out;
+}
+.meme-img.show {
+    opacity: 1;
+}
+.hidden {display:none !important;}
+@media (max-width:480px){
+    .container {padding:30px 20px;}
+    .amount {font-size:36px;}
+    h1 {font-size:24px;}
+}
+</style>
 </head>
 <body>
-    <div class="container">
-        <!-- 第一阶段：支付成功 -->
-        <div class="success-phase">
-            <div class="success-icon">
-                <div class="checkmark">✓</div>
-            </div>
-            <h1 id="success-title">Payment Successful</h1>
-            <div class="amount">$250.00</div>
-            <div class="details">
-                <div class="detail-row">
-                    <span class="detail-label" id="merchant-label">Merchant:</span>
-                    <span class="detail-value">Apple Store</span>
-                </div>
-                <div class="detail-row">
-                    <span class="detail-label" id="method-label">Payment Method:</span>
-                    <span class="detail-value">•••• 4567</span>
-                </div>
-                <div class="detail-row">
-                    <span class="detail-label" id="transaction-label">Transaction ID:</span>
-                    <span class="detail-value">#TXN789456123</span>
-                </div>
-            </div>
-            <div class="timestamp" id="timestamp"></div>
+<div class="container">
+    <div class="success-phase">
+        <div class="success-icon"><div class="checkmark">✓</div></div>
+        <h1 id="success-title">Payment Successful</h1>
+        <div class="amount">$250.00</div>
+        <div class="details">
+            <div class="detail-row"><span class="detail-label" id="merchant-label">Merchant:</span><span class="detail-value">Apple Store</span></div>
+            <div class="detail-row"><span class="detail-label" id="method-label">Payment Method:</span><span class="detail-value">•••• 4567</span></div>
+            <div class="detail-row"><span class="detail-label" id="transaction-label">Transaction ID:</span><span class="detail-value">#TXN789456123</span></div>
         </div>
-
-        <!-- 第二阶段：警告 -->
-        <div class="warning-phase">
-            <div class="warning-text" id="warning-text">什么码都扫只会害了你</div>
-        </div>
-
-        <!-- 第三阶段：最终提示 -->
-        <div class="final-phase">
-            <div class="final-text" id="final-text">这次是玩笑，下次可就不知道是什么咯 😏</div>
-            <img class="meme-img" id="meme-img" alt="Meme">
-        </div>
+        <div class="timestamp" id="timestamp"></div>
     </div>
 
-    <script>
-        const userLang = navigator.language || navigator.userLanguage;
-        const isZh = userLang.startsWith('zh');
-        const translations = {
-            en: {
-                successTitle: "Payment Successful",
-                merchantLabel: "Merchant:",
-                methodLabel: "Payment Method:",
-                transactionLabel: "Transaction ID:",
-                warningText: "Scanning every QR code will only harm you",
-                finalText: "This time it's a joke, but next time who knows 😏"
-            },
-            zh: {
-                successTitle: "支付成功",
-                merchantLabel: "商家:",
-                methodLabel: "支付方式:",
-                transactionLabel: "交易ID:",
-                warningText: "什么码都扫只会害了你",
-                finalText: "这次是玩笑，下次可就不知道是什么咯 😏"
-            },
-            ja: {
-                successTitle: "支払い成功",
-                merchantLabel: "加盟店:",
-                methodLabel: "支払い方法:",
-                transactionLabel: "取引ID:",
-                warningText: "どのQRコードでもスキャンすれば害になるだけ",
-                finalText: "今回は冗談だが、次は何かわからない 😏"
-            },
-            ko: {
-                successTitle: "결제 성공",
-                merchantLabel: "가맹점:",
-                methodLabel: "결제 수단:",
-                transactionLabel: "거래 ID:",
-                warningText: "모든 QR코드를 스캔하면 해가 될 뿐",
-                finalText: "이번엔 농담이지만, 다음엔 뭘지 모르겠네 😏"
-            },
-            es: {
-                successTitle: "Pago Exitoso",
-                merchantLabel: "Comerciante:",
-                methodLabel: "Método de Pago:",
-                transactionLabel: "ID de Transacción:",
-                warningText: "Escanear todos los códigos QR solo te hará daño",
-                finalText: "Esta vez es broma, pero la próxima quién sabe 😏"
-            },
-            fr: {
-                successTitle: "Paiement Réussi",
-                merchantLabel: "Marchand:",
-                methodLabel: "Méthode de Paiement:",
-                transactionLabel: "ID de Transaction:",
-                warningText: "Scanner tous les QR codes ne fera que vous nuire",
-                finalText: "Cette fois c'est une blague, mais la prochaine qui sait 😏"
-            }
-        };
+    <div class="warning-phase">
+        <div class="warning-text" id="warning-text">什么码都扫只会害了你</div>
+    </div>
 
-        let lang = 'en';
-        if (isZh) lang = 'zh';
-        else if (userLang.startsWith('ja')) lang = 'ja';
-        else if (userLang.startsWith('ko')) lang = 'ko';
-        else if (userLang.startsWith('es')) lang = 'es';
-        else if (userLang.startsWith('fr')) lang = 'fr';
-        const t = translations[lang];
+    <div class="final-phase">
+        <div class="final-text" id="final-text">这次是玩笑，下次可就不知道是什么咯 😏</div>
+        <img class="meme-img" id="meme-img" alt="Meme">
+    </div>
+</div>
 
-        function preloadCatImage(timeout = 4000) {
-            return new Promise((resolve) => {
-                let resolved = false;
-                const randomId = Math.floor(Math.random() * 1000) + Date.now();
-                const mainUrl = `https://placekitten.com/300/200?id=${randomId}`;
-                const backupUrl = `https://cataas.com/cat?width=300&height=200&${Date.now()}`;
+<script>
+const userLang = navigator.language || navigator.userLanguage;
+const isZh = userLang.startsWith('zh');
+const translations = {
+    en:{successTitle:"Payment Successful",merchantLabel:"Merchant:",methodLabel:"Payment Method:",transactionLabel:"Transaction ID:",warningText:"Scanning every QR code will only harm you",finalText:"This time it's a joke, but next time who knows 😏"},
+    zh:{successTitle:"支付成功",merchantLabel:"商家:",methodLabel:"支付方式:",transactionLabel:"交易ID:",warningText:"什么码都扫只会害了你",finalText:"这次是玩笑，下次可就不知道是什么咯 😏"},
+    ja:{successTitle:"支払い成功",merchantLabel:"加盟店:",methodLabel:"支払い方法:",transactionLabel:"取引ID:",warningText:"どのQRコードでもスキャンすれば害になるだけ",finalText:"今回は冗談だが、次は何かわからない 😏"},
+    ko:{successTitle:"결제 성공",merchantLabel:"가맹점:",methodLabel:"결제 수단:",transactionLabel:"거래 ID:",warningText:"모든 QR코드를 스캔하면 해가 될 뿐",finalText:"이번엔 농담이지만, 다음엔 뭘지 모르겠네 😏"},
+    es:{successTitle:"Pago Exitoso",merchantLabel:"Comerciante:",methodLabel:"Método de Pago:",transactionLabel:"ID de Transacción:",warningText:"Escanear todos los códigos QR solo te hará daño",finalText:"Esta vez es broma, pero la próxima quién sabe 😏"},
+    fr:{successTitle:"Paiement Réussi",merchantLabel:"Marchand:",methodLabel:"Méthode de Paiement:",transactionLabel:"ID de Transaction:",warningText:"Scanner tous les QR codes ne fera que vous nuire",finalText:"Cette fois c'est une blague, mais la prochaine qui sait 😏"}
+};
+let lang='en';
+if(isZh) lang='zh';
+else if(userLang.startsWith('ja')) lang='ja';
+else if(userLang.startsWith('ko')) lang='ko';
+else if(userLang.startsWith('es')) lang='es';
+else if(userLang.startsWith('fr')) lang='fr';
+const t = translations[lang];
 
-                // 预加载备用图
-                const backupImg = new Image();
-                backupImg.onload = () => {};
-                backupImg.src = backupUrl;
+async function preloadCatImage(timeout=4000){
+    return new Promise(resolve=>{
+        let resolved=false;
+        const mainUrl=`https://placekitten.com/300/200?id=${Math.floor(Math.random()*1000)+Date.now()}`;
+        const backupUrl=`https://cataas.com/cat?width=300&height=200&${Date.now()}`;
 
-                // 主图
-                const mainImg = new Image();
-                mainImg.onload = () => {
-                    if (resolved) {
-                        document.getElementById('meme-img').src = mainUrl;
-                    } else {
-                        resolved = true;
-                        resolve(mainUrl);
-                    }
-                };
-                mainImg.onerror = () => {
-                    if (!resolved) {
-                        resolved = true;
-                        resolve(backupUrl);
-                    }
-                };
+        const backupImg=new Image();
+        backupImg.onload=()=>{};
+        backupImg.src=backupUrl;
 
-                // 超时
-                setTimeout(() => {
-                    if (!resolved) {
-                        resolved = true;
-                        resolve(backupUrl);
-                    }
-                }, timeout);
-
-                mainImg.src = mainUrl;
-            });
+        const mainImg=new Image();
+        mainImg.onload=()=>{
+            if(!resolved){resolved=true; resolve(mainUrl);}
         }
-
-        function initPage() {
-            document.getElementById('success-title').textContent = t.successTitle;
-            document.getElementById('merchant-label').textContent = t.merchantLabel;
-            document.getElementById('method-label').textContent = t.methodLabel;
-            document.getElementById('transaction-label').textContent = t.transactionLabel;
-            document.getElementById('timestamp').textContent = new Date().toLocaleString(userLang);
+        mainImg.onerror=()=>{
+            if(!resolved){resolved=true; resolve(backupUrl);}
         }
+        setTimeout(()=>{
+            if(!resolved){resolved=true; resolve(backupUrl);}
+        },timeout);
 
-        function showWarningPhase() {
-            document.querySelector('.success-phase').classList.add('hidden');
-            document.querySelector('.warning-phase').style.display = 'block';
-            document.getElementById('warning-text').textContent = t.warningText;
-        }
+        mainImg.src=mainUrl;
+    });
+}
 
-        async function showFinalPhase() {
-            document.querySelector('.warning-phase').classList.add('hidden');
-            document.querySelector('.final-phase').style.display = 'block';
-            document.getElementById('final-text').textContent = t.finalText;
+function initPage(){
+    document.getElementById('success-title').textContent=t.successTitle;
+    document.getElementById('merchant-label').textContent=t.merchantLabel;
+    document.getElementById('method-label').textContent=t.methodLabel;
+    document.getElementById('transaction-label').textContent=t.transactionLabel;
+    document.getElementById('timestamp').textContent=new Date().toLocaleString(userLang);
+}
 
-            const imgElement = document.getElementById('meme-img');
-            const firstImage = await preloadCatImage();
-            imgElement.src = firstImage;
-            imgElement.onload = () => {
-                imgElement.style.backgroundImage = 'none';
-                imgElement.style.backgroundColor = 'transparent';
-            };
-        }
+function showWarningPhase(){
+    document.querySelector('.success-phase').classList.add('hidden');
+    document.querySelector('.warning-phase').style.display='block';
+    document.getElementById('warning-text').textContent=t.warningText;
+}
 
-        function startPhases() {
-            initPage();
-            setTimeout(showWarningPhase, 3000);
-            setTimeout(showFinalPhase, 6000);
-        }
+async function showFinalPhase(){
+    document.querySelector('.warning-phase').classList.add('hidden');
+    document.querySelector('.final-phase').style.display='block';
+    document.getElementById('final-text').textContent=t.finalText;
 
-        startPhases();
-    </script>
+    const imgEl=document.getElementById('meme-img');
+    imgEl.style.display='block';
+
+    const finalUrl=await preloadCatImage();
+    imgEl.src=finalUrl;
+    imgEl.onload=()=>{ imgEl.classList.add('show'); imgEl.style.backgroundImage='none'; imgEl.style.backgroundColor='transparent'; }
+}
+
+// 页面一开始就预加载主图
+preloadCatImage();
+
+// 启动阶段动画
+function startPhases(){
+    initPage();
+    setTimeout(showWarningPhase,3000);
+    setTimeout(showFinalPhase,6000);
+}
+
+startPhases();
+</script>
 </body>
 </html>
